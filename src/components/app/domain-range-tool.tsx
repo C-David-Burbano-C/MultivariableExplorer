@@ -14,6 +14,113 @@ export function DomainRangeTool() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Función para normalizar símbolos matemáticos descriptivos a Unicode
+  const normalizeMathNotation = (mathNotation: string): string => {
+    return mathNotation
+      .replace(/"element_of"/g, '∈')
+      .replace(/"R"/g, 'ℝ')
+      .replace(/"N"/g, 'ℕ')
+      .replace(/"Z"/g, 'ℤ')
+      .replace(/"Q"/g, 'ℚ')
+      .replace(/"C"/g, 'ℂ')
+      .replace(/element_of/g, '∈')
+      .replace(/real numbers/g, 'ℝ')
+      .replace(/natural numbers/g, 'ℕ')
+      .replace(/integers/g, 'ℤ')
+      .replace(/rational numbers/g, 'ℚ')
+      .replace(/complex numbers/g, 'ℂ');
+  };
+
+  // Función para convertir notación matemática a texto legible en español
+  const formatDomainRange = (mathNotation: string, isRange: boolean = false): { readable: string; explanation: string } => {
+    const type = isRange ? 'rango' : 'dominio';
+
+    // Usar la notación normalizada para las comparaciones
+    const normalized = normalizeMathNotation(mathNotation);
+
+    // Casos comunes de dominio
+    if (!isRange) {
+      if (normalized.includes('ℝ') && normalized.includes('∈')) {
+        if (normalized.includes('x ∈ ℝ') && normalized.includes('y ∈ ℝ')) {
+          return {
+            readable: 'Todos los números reales para x y y',
+            explanation: 'La función puede recibir cualquier valor real tanto para x como para y'
+          };
+        }
+        if (normalized.includes('x ∈ ℝ') && !normalized.includes('y')) {
+          return {
+            readable: 'Todos los números reales para x',
+            explanation: 'La función puede recibir cualquier valor real para la variable x'
+          };
+        }
+      }
+
+      if (normalized.includes('≥ 0') || normalized.includes('> 0')) {
+        const isGreaterEqual = normalized.includes('≥ 0');
+        return {
+          readable: `x ${isGreaterEqual ? 'mayor o igual' : 'mayor'} a 0`,
+          explanation: `La función está definida para valores de x ${isGreaterEqual ? 'desde 0 en adelante' : 'mayores a 0'}, ya que evita divisiones por cero o raíces cuadradas de números negativos`
+        };
+      }
+
+      if (normalized.includes('≠ 0')) {
+        return {
+          readable: 'x diferente de 0',
+          explanation: 'La función no está definida en x = 0, generalmente debido a una división por cero'
+        };
+      }
+
+      if (normalized.includes('[-1, 1]')) {
+        return {
+          readable: 'x entre -1 y 1 inclusive',
+          explanation: 'La función está definida en el intervalo cerrado [-1, 1], común en funciones trigonométricas inversas'
+        };
+      }
+
+      if (normalized.includes('(-∞, ∞)')) {
+        return {
+          readable: 'Todos los números reales',
+          explanation: 'La función está definida para cualquier número real'
+        };
+      }
+    } else {
+      // Casos comunes de rango
+      if (normalized.includes('ℝ') || normalized.includes('(-∞, ∞)')) {
+        return {
+          readable: 'Todos los números reales',
+          explanation: 'La función puede tomar cualquier valor real como resultado'
+        };
+      }
+
+      if (normalized.includes('[0, ∞)') || normalized.includes('≥ 0')) {
+        return {
+          readable: 'Números reales no negativos (desde 0 en adelante)',
+          explanation: 'Los valores de la función nunca son negativos, comenzando desde cero'
+        };
+      }
+
+      if (normalized.includes('(-1, 1)')) {
+        return {
+          readable: 'Valores entre -1 y 1, sin incluir los extremos',
+          explanation: 'La función toma valores en el intervalo abierto (-1, 1)'
+        };
+      }
+
+      if (normalized.includes('[-1, 1]')) {
+        return {
+          readable: 'Valores entre -1 y 1 inclusive',
+          explanation: 'La función toma valores en el intervalo cerrado [-1, 1]'
+        };
+      }
+    }
+
+    // Si no reconoce el patrón, devuelve el normalizado con una explicación genérica
+    return {
+      readable: normalized,
+      explanation: `Notación matemática estándar del conjunto de valores ${isRange ? 'que puede tomar' : 'permitidos para'} la función`
+    };
+  };
+
   const handleAnalysis = async () => {
     if (!funcResult || 'error' in funcResult) {
       toast({
@@ -75,8 +182,19 @@ export function DomainRangeTool() {
               <CheckCircle2 className="h-5 w-5 text-primary" />
               <h4 className="font-semibold text-base">Dominio</h4>
             </div>
-            <div className="bg-background/50 rounded-md p-3 border">
-              <code className="text-sm font-mono">{domainRangeResult.domain}</code>
+            <div className="space-y-3">
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-primary mb-1">En palabras:</p>
+                <p className="text-sm">{formatDomainRange(domainRangeResult.domain, false).readable}</p>
+              </div>
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Explicación:</p>
+                <p className="text-sm">{formatDomainRange(domainRangeResult.domain, false).explanation}</p>
+              </div>
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Notación matemática:</p>
+                <code className="text-sm font-mono">{normalizeMathNotation(domainRangeResult.domain)}</code>
+              </div>
             </div>
           </div>
 
@@ -85,8 +203,19 @@ export function DomainRangeTool() {
               <CheckCircle2 className="h-5 w-5 text-accent" />
               <h4 className="font-semibold text-base">Rango</h4>
             </div>
-            <div className="bg-background/50 rounded-md p-3 border">
-              <code className="text-sm font-mono">{domainRangeResult.range}</code>
+            <div className="space-y-3">
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-accent mb-1">En palabras:</p>
+                <p className="text-sm">{formatDomainRange(domainRangeResult.range, true).readable}</p>
+              </div>
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Explicación:</p>
+                <p className="text-sm">{formatDomainRange(domainRangeResult.range, true).explanation}</p>
+              </div>
+              <div className="bg-background/50 rounded-md p-3 border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Notación matemática:</p>
+                <code className="text-sm font-mono">{normalizeMathNotation(domainRangeResult.range)}</code>
+              </div>
             </div>
           </div>
 

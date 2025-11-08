@@ -127,9 +127,13 @@ export function MultipleIntegralTool() {
                 </code>
              </div>
              <div>
-                <h4 className="font-semibold">Pasos:</h4>
-                <div className="text-sm p-3 bg-secondary rounded-md whitespace-pre-wrap">
-                    {multipleIntegralResult.steps}
+                <h4 className="font-semibold">Pasos del cálculo:</h4>
+                <div className="text-sm p-3 bg-secondary rounded-md">
+                  {multipleIntegralResult.steps.split('\n').map((step, index) => (
+                    <div key={index} className={`mb-2 ${step.startsWith('Paso') || step.startsWith('Step') ? 'font-semibold text-primary' : ''}`}>
+                      {step}
+                    </div>
+                  ))}
                 </div>
              </div>
           </CardContent>

@@ -48,7 +48,28 @@ const analyzeDomainAndRangePrompt = ai.definePrompt({
 
 Function: {{{functionString}}}
 
-Output the domain, range, and any assumptions made. Be as accurate as possible, and describe the domain and range in mathematical notation.
+Output the domain, range, and any assumptions made. Be as accurate as possible, and describe the domain and range using proper mathematical notation with Unicode symbols.
+
+Use these Unicode mathematical symbols:
+- ∈ for "element of" (not "element_of")
+- ℝ for "real numbers" (not "R")
+- ℕ for "natural numbers"
+- ℤ for "integers"  
+- ℚ for "rational numbers"
+- ℂ for "complex numbers"
+- ∞ for "infinity"
+- ≤ for "less than or equal"
+- ≥ for "greater than or equal"
+- ≠ for "not equal"
+- ⊂ for "subset"
+- ⊆ for "subset or equal"
+- ∪ for "union"
+- ∩ for "intersection"
+
+Examples of correct notation:
+- Domain: { (x, y) | x ∈ ℝ, y ∈ ℝ }
+- Range: [0, ∞)
+- Domain: x ∈ ℝ, x ≠ 0
 
 If you are unable to determine the domain and range, explain why.
 `,

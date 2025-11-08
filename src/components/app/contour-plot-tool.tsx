@@ -20,6 +20,7 @@ export function ContourPlotTool() {
   const { funcResult } = useAppContext();
   const [numContours, setNumContours] = useState([10]);
   const [error, setError] = useState<string | null>(null);
+  const [contourInfo, setContourInfo] = useState<{min: number, max: number, levels: number[]} | null>(null);
 
   useEffect(() => {
     if (!mountRef.current || !funcResult || 'error' in funcResult) return;
@@ -43,10 +44,14 @@ export function ContourPlotTool() {
     mountRef.current.innerHTML = '';
     mountRef.current.appendChild(renderer.domElement);
 
-    // Controles
+    // Controles - restringir para vista 2D
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.enableRotate = false; // Deshabilitar rotación para vista 2D
+    controls.enableZoom = true;
+    controls.enablePan = true;
+    controls.maxPolarAngle = Math.PI / 2; // Limitar a vista superior
 
     // Luces
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -54,10 +59,14 @@ export function ContourPlotTool() {
     directionalLight.position.set(10, 10, 5);
     scene.add(ambientLight, directionalLight);
 
-    // Rejilla base
-    const gridHelper = new THREE.GridHelper(20, 20, 0x94a3b8, 0xe2e8f0);
-    gridHelper.rotation.x = -Math.PI / 2;
+    // Rejilla base para plano x-y
+    const gridHelper = new THREE.GridHelper(16, 16, 0x64748b, 0xe2e8f0);
+    gridHelper.rotation.x = -Math.PI / 2; // Plano x-y
     scene.add(gridHelper);
+
+    // Ejes coordenados
+    const axesHelper = new THREE.AxesHelper(8);
+    scene.add(axesHelper);
 
     try {
       if (parsedFunc.tipo === '3D' && isValidExpression(parsedFunc.expresionNormalizada)) {
@@ -78,16 +87,27 @@ export function ContourPlotTool() {
           const range = maxVal - minVal;
           const step = range / numContours[0];
 
-          // Crear curvas de nivel
-          for (let level = minVal + step; level < maxVal; level += step) {
+          // Calcular niveles de contorno
+          const levels: number[] = [];
+          for (let i = 1; i < numContours[0]; i++) {
+            levels.push(minVal + step * i);
+          }
+
+          setContourInfo({ min: minVal, max: maxVal, levels });
+
+          // Crear curvas de nivel usando marching squares simplificado
+          for (const level of levels) {
             const points: THREE.Vector3[] = [];
 
-            // Generar puntos para la curva de nivel
-            for (let x = -10; x <= 10; x += 0.1) {
-              for (let y = -10; y <= 10; y += 0.1) {
+            // Usar resolución más fina para curvas más suaves
+            const resolution = 0.05;
+            const range = 8; // Rango visible
+
+            for (let x = -range; x <= range; x += resolution) {
+              for (let y = -range; y <= range; y += resolution) {
                 const val = plotFunc(x, y);
-                if (Math.abs(val - level) < step * 0.1) {
-                  points.push(new THREE.Vector3(x, level * 0.1, y));
+                if (Math.abs(val - level) < step * 0.05) { // Tolerancia más fina
+                  points.push(new THREE.Vector3(x, 0, y));
                 }
               }
             }
@@ -95,8 +115,10 @@ export function ContourPlotTool() {
             if (points.length > 1) {
               const geometry = new THREE.BufferGeometry().setFromPoints(points);
               const material = new THREE.LineBasicMaterial({
-                color: new THREE.Color().setHSL((level - minVal) / range, 0.7, 0.5),
-                linewidth: 2
+                color: new THREE.Color().setHSL((level - minVal) / (maxVal - minVal), 0.8, 0.5),
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.8
               });
               const contourLine = new THREE.Line(geometry, material);
               scene.add(contourLine);
@@ -105,8 +127,8 @@ export function ContourPlotTool() {
         }
       }
 
-      camera.position.set(15, 10, 15);
-      controls.update();
+      camera.position.set(0, 15, 0); // Vista superior del plano x-y
+      camera.lookAt(0, 0, 0);
 
       // Animación
       renderer.setAnimationLoop(() => {
@@ -150,7 +172,7 @@ export function ContourPlotTool() {
           Curvas de Nivel
         </CardTitle>
         <CardDescription>
-          Visualización 2D de funciones 3D mediante líneas de contorno
+          Visualización 2D de funciones f(x,y) mediante curvas de nivel en el plano x-y
         </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
@@ -185,10 +207,21 @@ export function ContourPlotTool() {
           className="relative h-[50vh] w-full rounded-xl overflow-hidden border-2 border-border/50 shadow-inner"
         />
 
+        {contourInfo && (
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <h4 className="text-sm font-semibold mb-2">Información de Curvas de Nivel</h4>
+            <div className="text-xs space-y-1">
+              <p>Rango de valores: [{contourInfo.min.toFixed(2)}, {contourInfo.max.toFixed(2)}]</p>
+              <p>Niveles: {contourInfo.levels.map(l => l.toFixed(2)).join(', ')}</p>
+            </div>
+          </div>
+        )}
+
         <div className="mt-4 text-xs text-muted-foreground space-y-1">
+          <p>• Vista superior del plano x-y con curvas de nivel</p>
           <p>• Cada línea representa puntos donde f(x,y) = constante</p>
           <p>• Las líneas más juntas indican gradientes más pronunciados</p>
-          <p>• Útil para análisis topográfico y optimización</p>
+          <p>• Útil para análisis topográfico y optimización 2D</p>
         </div>
       </CardContent>
     </Card>

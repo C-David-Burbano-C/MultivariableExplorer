@@ -3,8 +3,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VisualizationPanel } from './visualization-panel';
 import { CalculusToolsPanel } from './calculus-tools-panel';
+import { CalculatorPanel } from './calculator-panel';
 import { useAppContext } from './app-context';
-import { AlertCircle, FunctionSquare, PilcrowSquare } from 'lucide-react';
+import { AlertCircle, Calculator, FunctionSquare, PilcrowSquare } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export function MainPanel() {
@@ -21,54 +22,43 @@ export function MainPanel() {
     );
   }
 
-  if (!funcResult) {
-    return (
-      <div className="flex h-[calc(100vh-56px)] w-full items-center justify-center p-8">
-        <Alert className="max-w-lg text-center">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle className="font-headline">Listo para explorar</AlertTitle>
-            <AlertDescription>
-                Ingrese una función en el panel lateral para comenzar a visualizar y analizar conceptos de cálculo multivariable.
-            </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  if ('error' in funcResult) {
-     return (
-      <div className="flex h-[calc(100vh-56px)] w-full items-center justify-center p-8">
-        <Alert variant="destructive" className="max-w-lg text-center">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle className="font-headline">Error en la Función</AlertTitle>
-            <AlertDescription>
-                {funcResult.error}
-                <br />
-                Por favor, revise la función ingresada e intente nuevamente.
-            </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   return (
     <main className="flex flex-1 flex-col p-4 sm:p-6">
-      <Tabs defaultValue="visualization">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="visualization">
-            <FunctionSquare className="mr-2 h-4 w-4" />
-            Visualización
-          </TabsTrigger>
+      <Tabs defaultValue="tools">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="tools">
             <PilcrowSquare className="mr-2 h-4 w-4" />
             Herramientas de Cálculo
           </TabsTrigger>
+          <TabsTrigger value="visualization" disabled={!funcResult || 'error' in funcResult}>
+            <FunctionSquare className="mr-2 h-4 w-4" />
+            Visualización
+          </TabsTrigger>
+          <TabsTrigger value="calculator">
+            <Calculator className="mr-2 h-4 w-4" />
+            Calculadora
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="visualization">
-          <VisualizationPanel />
-        </TabsContent>
         <TabsContent value="tools">
           <CalculusToolsPanel />
+        </TabsContent>
+        <TabsContent value="visualization">
+          {funcResult && !('error' in funcResult) ? (
+            <VisualizationPanel />
+          ) : (
+            <div className="flex h-[calc(100vh-200px)] w-full items-center justify-center p-8">
+              <Alert className="max-w-lg text-center">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="font-headline">Visualización no disponible</AlertTitle>
+                  <AlertDescription>
+                      Ingrese una función en el panel lateral para visualizarla gráficamente.
+                  </AlertDescription>
+              </Alert>
+            </div>
+          )}
+        </TabsContent>
+        <TabsContent value="calculator">
+          <CalculatorPanel />
         </TabsContent>
       </Tabs>
     </main>

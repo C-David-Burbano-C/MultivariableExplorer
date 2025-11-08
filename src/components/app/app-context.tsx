@@ -44,7 +44,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsParsing,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>{children}</AppContext.Provider>
+  );
 }
 
 export function useAppContext() {

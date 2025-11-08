@@ -32,8 +32,8 @@ export default function RootLayout({
       >
         <ThemeProvider>
           {children}
+          <Toaster />
         </ThemeProvider>
-        <Toaster />
       </body>
     </html>
   );

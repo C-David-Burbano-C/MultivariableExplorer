@@ -81,6 +81,7 @@ export function PartialDerivativeTool() {
       if (result.error) {
         toast({ variant: 'destructive', title: 'Error de Cálculo', description: result.error });
       } else {
+        console.log('Partial derivative result:', result); // Debug
         toast({
           title: '✓ Derivada calculada',
           description: `∂f/∂${data.variable} se calculó correctamente.`,
@@ -188,6 +189,24 @@ export function PartialDerivativeTool() {
                 <code className="text-2xl font-mono font-bold text-accent block text-center">
                   {partialDerivativeResult.evaluatedValue}
                 </code>
+              </div>
+            </div>
+          )}
+
+          {partialDerivativeResult.steps && partialDerivativeResult.steps.trim() && (
+            <div className="rounded-lg border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Activity className="h-5 w-5 text-blue-500" />
+                <h4 className="font-semibold text-base">Pasos del Cálculo</h4>
+              </div>
+              <div className="bg-background/50 rounded-md p-4 border">
+                <div className="text-sm space-y-2">
+                  {partialDerivativeResult.steps.split('\n').filter(step => step.trim()).map((step, index) => (
+                    <div key={index} className={`mb-2 ${step.startsWith('Paso') || step.startsWith('Función') ? 'font-semibold text-blue-600' : ''}`}>
+                      {step}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

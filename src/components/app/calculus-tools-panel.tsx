@@ -4,8 +4,9 @@ import { DomainRangeTool } from './domain-range-tool';
 import { PartialDerivativeTool } from './partial-derivative-tool';
 import { MultipleIntegralTool } from './multiple-integral-tool';
 import { ContourPlotTool } from './contour-plot-tool';
+import { OptimizationTool } from './optimization-tool';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Activity, Sigma, Target, Layers } from 'lucide-react';
+import { Activity, Sigma, Target, Layers, TrendingUp } from 'lucide-react';
 
 export function CalculusToolsPanel() {
   return (
@@ -18,7 +19,7 @@ export function CalculusToolsPanel() {
       </CardHeader>
       <CardContent className="p-6">
         <Tabs defaultValue="domain" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-6">
             <TabsTrigger value="domain" className="gap-2">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Dominio</span>
@@ -34,6 +35,10 @@ export function CalculusToolsPanel() {
             <TabsTrigger value="contours" className="gap-2">
               <Layers className="h-4 w-4" />
               <span className="hidden sm:inline">Contornos</span>
+            </TabsTrigger>
+            <TabsTrigger value="optimization" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Optimización</span>
             </TabsTrigger>
           </TabsList>
 
@@ -69,6 +74,10 @@ export function CalculusToolsPanel() {
 
           <TabsContent value="contours" className="space-y-4">
             <ContourPlotTool />
+          </TabsContent>
+
+          <TabsContent value="optimization" className="space-y-4">
+            <OptimizationTool />
           </TabsContent>
         </Tabs>
       </CardContent>
