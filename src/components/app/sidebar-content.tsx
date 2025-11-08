@@ -1,4 +1,5 @@
 import { FunctionInputForm } from './function-input-form';
+import { RequirementsCompliance } from './requirements-compliance';
 import { Logo } from '../icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { SidebarGroup, SidebarGroupContent } from '../ui/sidebar';
@@ -18,19 +19,9 @@ export function AppSidebarContent() {
          <FunctionInputForm />
       </SidebarGroupContent>
 
-      <Card className="mt-4 bg-secondary/50">
-          <CardHeader className="p-4">
-              <CardTitle className="text-base">Bienvenido!</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 text-sm text-muted-foreground">
-              <p>
-              Ingrese una función para comenzar. Puede usar variables como x, y, z y funciones como sin(), cos(), sqrt().
-              </p>
-              <p className="mt-2">
-              Ejemplos: <strong>sin(x^2+y^2)</strong>, <strong>x^2-y^2</strong>, <strong>y = x^2</strong>
-              </p>
-          </CardContent>
-      </Card>
+      <div className="mt-4">
+        <RequirementsCompliance />
+      </div>
     </SidebarGroup>
   );
 }

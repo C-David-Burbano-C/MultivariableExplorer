@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { DomainRangeTool } from './domain-range-tool';
 import { PartialDerivativeTool } from './partial-derivative-tool';
 import { MultipleIntegralTool } from './multiple-integral-tool';
+import { ContourPlotTool } from './contour-plot-tool';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Activity, Sigma, Target } from 'lucide-react';
+import { Activity, Sigma, Target, Layers } from 'lucide-react';
 
 export function CalculusToolsPanel() {
   return (
@@ -17,7 +18,7 @@ export function CalculusToolsPanel() {
       </CardHeader>
       <CardContent className="p-6">
         <Tabs defaultValue="domain" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
             <TabsTrigger value="domain" className="gap-2">
               <Target className="h-4 w-4" />
               <span className="hidden sm:inline">Dominio</span>
@@ -30,8 +31,12 @@ export function CalculusToolsPanel() {
               <Sigma className="h-4 w-4" />
               <span className="hidden sm:inline">Integrales</span>
             </TabsTrigger>
+            <TabsTrigger value="contours" className="gap-2">
+              <Layers className="h-4 w-4" />
+              <span className="hidden sm:inline">Contornos</span>
+            </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="domain" className="space-y-4">
             <div className="rounded-lg border bg-card p-4">
               <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
@@ -41,7 +46,7 @@ export function CalculusToolsPanel() {
               <DomainRangeTool />
             </div>
           </TabsContent>
-          
+
           <TabsContent value="derivative" className="space-y-4">
             <div className="rounded-lg border bg-card p-4">
               <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
@@ -51,7 +56,7 @@ export function CalculusToolsPanel() {
               <PartialDerivativeTool />
             </div>
           </TabsContent>
-          
+
           <TabsContent value="integral" className="space-y-4">
             <div className="rounded-lg border bg-card p-4">
               <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
@@ -60,6 +65,10 @@ export function CalculusToolsPanel() {
               </h3>
               <MultipleIntegralTool />
             </div>
+          </TabsContent>
+
+          <TabsContent value="contours" className="space-y-4">
+            <ContourPlotTool />
           </TabsContent>
         </Tabs>
       </CardContent>
