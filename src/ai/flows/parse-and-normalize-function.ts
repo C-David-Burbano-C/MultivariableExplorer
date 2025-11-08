@@ -61,24 +61,37 @@ Tu tarea:
    - sqrt → Math.sqrt
    - e → Math.E
    - pi → Math.PI
-   - = → == (solo si es una ecuación)
    - Elimina espacios extra
 
-4. Devuelve una salida en formato JSON con esta estructura:
+4. **REGLA CRÍTICA para expresionNormalizada:**
+   - Si la entrada tiene formato "z = expresión" o "y = expresión", debes devolver SOLAMENTE la parte del lado DERECHO del signo igual
+   - Ejemplo: Si el usuario escribe "z = x^2 + y^2", la expresionNormalizada debe ser "x**2 + y**2" (SIN "z =")
+   - Ejemplo: Si el usuario escribe "y = sin(x)", la expresionNormalizada debe ser "Math.sin(x)" (SIN "y =")
+   - NUNCA incluyas "z =" o "y =" en la expresionNormalizada
+   - La expresionNormalizada debe contener ÚNICAMENTE la expresión matemática que se va a evaluar
+
+5. Devuelve una salida en formato JSON con esta estructura:
 
 {
   "tipo": "2D" o "3D",
   "expresionOriginal": "texto ingresado por el usuario",
-  "expresionNormalizada": "versión lista para evaluar en JavaScript",
+  "expresionNormalizada": "SOLO la expresión del lado derecho, sin z= o y=",
   "funcionJS": "function(x, y, z){ return ... }",
   "descripcion": "Explicación breve de qué tipo de superficie o curva es"
 }
 
-5. Si es una ecuación con “==”, genera la forma equivalente a cero, por ejemplo:
-   - Entrada: \"x^2 + y^2 = 9\"
-   - Salida: \"return (x**2 + y**2 - 9);\"
+Ejemplos correctos:
+- Input: "z = x^2 + y^2"
+  Output: { tipo: "3D", expresionNormalizada: "x**2 + y**2", ... }
+  
+- Input: "y = sin(x)"
+  Output: { tipo: "2D", expresionNormalizada: "Math.sin(x)", ... }
 
-6. Si el usuario escribe algo inválido, responde con:
+6. Si es una ecuación implícita (con = pero sin z o y al inicio):
+   - Entrada: "x^2 + y^2 = 9"
+   - Salida expresionNormalizada: "(x**2 + y**2 - 9)"
+
+7. Si el usuario escribe algo inválido, responde con:
    {
      "error": "No se reconoce una función o ecuación válida."
    }

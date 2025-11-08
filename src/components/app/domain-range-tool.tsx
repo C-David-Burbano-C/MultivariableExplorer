@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { useAppContext } from './app-context';
 import { analyzeDomainAndRangeAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, ZoomIn } from 'lucide-react';
+import { LoaderCircle, Target, CheckCircle2 } from 'lucide-react';
+import { Badge } from '../ui/badge';
 
 export function DomainRangeTool() {
   const { funcResult, domainRangeResult, setDomainRangeResult } = useAppContext();
@@ -28,6 +29,10 @@ export function DomainRangeTool() {
     try {
       const result = await analyzeDomainAndRangeAction({ functionString: funcResult.expresionNormalizada });
       setDomainRangeResult(result);
+      toast({
+        title: '✓ Análisis completado',
+        description: 'El dominio y rango se calcularon correctamente.',
+      });
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -40,41 +45,58 @@ export function DomainRangeTool() {
   };
 
   return (
-    <div className="space-y-4 p-2">
+    <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Analiza el dominio y rango de la función ingresada. La IA determinará los valores de entrada y salida posibles.
       </p>
-      <Button onClick={handleAnalysis} disabled={isLoading}>
+      <Button 
+        onClick={handleAnalysis} 
+        disabled={isLoading}
+        className="w-full shadow-modern"
+        size="lg"
+      >
         {isLoading ? (
-          <LoaderCircle className="animate-spin" />
+          <>
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            Analizando...
+          </>
         ) : (
-          <ZoomIn />
+          <>
+            <Target className="mr-2 h-4 w-4" />
+            Analizar Dominio y Rango
+          </>
         )}
-        Analizar Dominio y Rango
       </Button>
 
       {domainRangeResult && (
-        <Card className="bg-background">
-          <CardHeader>
-            <CardTitle className="text-lg">Resultado del Análisis</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="font-semibold">Dominio:</h4>
-              <p className="text-sm font-mono p-2 bg-secondary rounded-md">{domainRangeResult.domain}</p>
+        <div className="space-y-3 animate-in fade-in duration-300">
+          <div className="rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <h4 className="font-semibold text-base">Dominio</h4>
             </div>
-            <div>
-              <h4 className="font-semibold">Rango:</h4>
-              <p className="text-sm font-mono p-2 bg-secondary rounded-md">{domainRangeResult.range}</p>
+            <div className="bg-background/50 rounded-md p-3 border">
+              <code className="text-sm font-mono">{domainRangeResult.domain}</code>
             </div>
-            {domainRangeResult.assumptions && (
-              <div>
-                <h4 className="font-semibold">Asunciones:</h4>
-                <p className="text-sm text-muted-foreground">{domainRangeResult.assumptions}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="rounded-lg border-2 border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-5 w-5 text-accent" />
+              <h4 className="font-semibold text-base">Rango</h4>
+            </div>
+            <div className="bg-background/50 rounded-md p-3 border">
+              <code className="text-sm font-mono">{domainRangeResult.range}</code>
+            </div>
+          </div>
+
+          {domainRangeResult.assumptions && (
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <Badge variant="secondary" className="mb-2">Asunciones</Badge>
+              <p className="text-sm text-muted-foreground">{domainRangeResult.assumptions}</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

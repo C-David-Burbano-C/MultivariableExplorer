@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Activity, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAppContext } from './app-context';
 import { calculatePartialDerivativeAction } from '@/app/actions';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
 
 const FormSchema = z.object({
   variable: z.string().min(1, 'Se requiere una variable.'),
@@ -39,7 +39,6 @@ export function PartialDerivativeTool() {
   const parsePoint = (pointStr: string | undefined) => {
     if (!pointStr) return undefined;
     try {
-        // Expects format like "x=1, y=2"
         const pointObj: Record<string, number> = {};
         pointStr.split(',').forEach(part => {
             const [key, value] = part.split('=').map(s => s.trim());
@@ -81,6 +80,11 @@ export function PartialDerivativeTool() {
 
       if (result.error) {
         toast({ variant: 'destructive', title: 'Error de Cálculo', description: result.error });
+      } else {
+        toast({
+          title: '✓ Derivada calculada',
+          description: `∂f/∂${data.variable} se calculó correctamente.`,
+        });
       }
       setPartialDerivativeResult(result);
     } catch (error) {
@@ -95,19 +99,24 @@ export function PartialDerivativeTool() {
   }
 
   return (
-    <div className="space-y-4 p-2">
+    <div className="space-y-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <FormField
                 control={form.control}
                 name="variable"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Derivar con respecto a:</FormLabel>
+                    <FormLabel className="text-sm font-medium">Variable de derivación</FormLabel>
                     <FormControl>
-                    <Input placeholder="x" {...field} />
+                    <Input 
+                      placeholder="x, y, o z" 
+                      className="font-mono" 
+                      {...field} 
+                    />
                     </FormControl>
+                    <FormDescription className="text-xs">∂f/∂variable</FormDescription>
                     <FormMessage />
                 </FormItem>
                 )}
@@ -117,44 +126,72 @@ export function PartialDerivativeTool() {
                 name="point"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Evaluar en el punto (opcional)</FormLabel>
+                    <FormLabel className="text-sm font-medium">Punto de evaluación</FormLabel>
                     <FormControl>
-                    <Input placeholder="x=1, y=2" {...field} />
+                    <Input 
+                      placeholder="x=1, y=2" 
+                      className="font-mono text-sm"
+                      {...field} 
+                    />
                     </FormControl>
-                    <FormDescription className="text-xs">Formato: var1=num1, var2=num2</FormDescription>
+                    <FormDescription className="text-xs">Opcional: x=num, y=num</FormDescription>
                     <FormMessage />
                 </FormItem>
                 )}
             />
           </div>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-            Calcular Derivada Parcial
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="w-full shadow-modern"
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                Calculando...
+              </>
+            ) : (
+              <>
+                <Activity className="mr-2 h-4 w-4" />
+                Calcular Derivada Parcial
+              </>
+            )}
           </Button>
         </form>
       </Form>
+      
       {partialDerivativeResult && (
-        <Card className="mt-4 bg-background">
-          <CardHeader>
-            <CardTitle className="text-lg">Resultado de la Derivada</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm">
-                La derivada parcial con respecto a <strong>{form.getValues('variable')}</strong> es:
-            </p>
-            <code className="block w-full p-3 rounded-md bg-secondary font-mono text-sm">
-              {partialDerivativeResult.derivative}
-            </code>
-            {partialDerivativeResult.evaluatedValue !== undefined && partialDerivativeResult.evaluatedValue !== null && (
-                 <div>
-                    <p className="text-sm mt-2">Evaluada en el punto es:</p>
-                    <code className="block w-full p-3 rounded-md bg-secondary font-mono text-sm">
-                      {partialDerivativeResult.evaluatedValue}
-                    </code>
-                 </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-3 animate-in fade-in duration-300">
+          <div className="rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <h4 className="font-semibold text-base">Derivada Parcial</h4>
+              <Badge variant="secondary" className="ml-auto">
+                ∂f/∂{form.getValues('variable')}
+              </Badge>
+            </div>
+            <div className="bg-background/50 rounded-md p-4 border">
+              <code className="text-base font-mono block">
+                {partialDerivativeResult.derivative}
+              </code>
+            </div>
+          </div>
+
+          {partialDerivativeResult.evaluatedValue !== undefined && partialDerivativeResult.evaluatedValue !== null && (
+            <div className="rounded-lg border-2 border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <ArrowRight className="h-5 w-5 text-accent" />
+                <h4 className="font-semibold text-base">Valor en el Punto</h4>
+              </div>
+              <div className="bg-background/50 rounded-md p-4 border">
+                <code className="text-2xl font-mono font-bold text-accent block text-center">
+                  {partialDerivativeResult.evaluatedValue}
+                </code>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

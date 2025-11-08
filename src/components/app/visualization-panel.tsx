@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useAppContext } from './app-context';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { TriangleAlert } from 'lucide-react';
+import { TriangleAlert, Info } from 'lucide-react';
 
 function isValidExpression(expr: string) {
   const forbidden = ['window', 'document', 'alert', 'eval', 'function', '=>'];
@@ -28,6 +28,7 @@ export function VisualizationPanel() {
     // --- Escena y cámara ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeaf6ff);
+    
     const camera = new THREE.PerspectiveCamera(
       60,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
@@ -104,7 +105,7 @@ export function VisualizationPanel() {
           vertexColors: true,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.8,
+          opacity: 0.6,
         });
 
         // --- Malla ---
@@ -185,16 +186,31 @@ export function VisualizationPanel() {
   const parsedFunc = funcResult as ParsedFunction;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">{parsedFunc?.descripcion || 'Gráfico de la Función'}</CardTitle>
-        <CardDescription>
-          Función ingresada: <strong>{parsedFunc?.expresionOriginal}</strong>
-          <br />
-          Expresión normalizada: <code>{parsedFunc?.expresionNormalizada}</code>
-        </CardDescription>
+    <Card className="shadow-modern-lg border-2">
+      <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 border-b">
+        <div className="flex items-start justify-between">
+          <div>
+            <CardTitle className="text-xl font-bold flex items-center gap-2">
+              {parsedFunc?.descripcion || 'Gráfico de la Función'}
+            </CardTitle>
+            <CardDescription className="mt-2 space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-primary">Original:</span>
+                <code className="text-sm font-mono bg-background/50 px-2 py-0.5 rounded">
+                  {parsedFunc?.expresionOriginal}
+                </code>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-accent">Normalizada:</span>
+                <code className="text-xs font-mono bg-background/50 px-2 py-0.5 rounded">
+                  {parsedFunc?.expresionNormalizada}
+                </code>
+              </div>
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {error && (
           <Alert variant="destructive" className="mb-4">
             <TriangleAlert className="h-4 w-4" />
@@ -204,11 +220,20 @@ export function VisualizationPanel() {
         )}
         <div
           ref={mountRef}
-          className="h-[60vh] w-full rounded-lg bg-slate-200 dark:bg-slate-800"
+          className="relative h-[65vh] w-full rounded-xl overflow-hidden border-2 border-border/50 shadow-inner bg-gradient-to-br from-background to-secondary"
         />
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          Usa el mouse para rotar, mover y hacer zoom.
-        </p>
+        <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Info className="h-3 w-3" />
+            <span>Click + arrastrar para rotar</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>Scroll para zoom</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>Click derecho para mover</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
