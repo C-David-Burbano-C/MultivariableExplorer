@@ -55,23 +55,23 @@
   }
 
   .dark {
-    /* DeepSeek-inspired dark theme */
-    --background: 222 47% 11%;
+    /* Modern dark theme - DeepSeek inspired */
+    --background: 222 47% 8%;
     --foreground: 0 0% 98%;
     
-    --card: 222 47% 11%;
+    --card: 222 47% 12%;
     --card-foreground: 0 0% 98%;
     
-    --popover: 222 47% 11%;
+    --popover: 222 47% 12%;
     --popover-foreground: 0 0% 98%;
     
     --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 217 33% 17%;
+    --secondary: 217 33% 15%;
     --secondary-foreground: 0 0% 98%;
     
-    --muted: 217 33% 17%;
+    --muted: 217 33% 15%;
     --muted-foreground: 0 0% 63%;
     
     --accent: 262 83% 58%;
@@ -80,8 +80,8 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
+    --border: 217 33% 18%;
+    --input: 217 33% 15%;
     --ring: 221 83% 53%;
     
     --chart-1: 221 83% 53%;
@@ -90,13 +90,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     
-    --sidebar-background: 222 47% 11%;
+    --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent: 217 33% 15%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 217 33% 17%;
+    --sidebar-border: 217 33% 18%;
     --sidebar-ring: 221 83% 53%;
   }
 }
@@ -130,9 +130,11 @@
   }
   
   .dark .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
   
   /* Gradient text */
@@ -140,14 +142,24 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
   }
   
-  /* Modern shadows */
+  /* Modern shadows - enhanced for dark theme */
   .shadow-modern {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
-                0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+                0 1px 2px -1px rgba(0, 0, 0, 0.3);
   }
   
   .shadow-modern-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+                0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .shadow-modern {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5),
+                0 1px 2px -1px rgba(0, 0, 0, 0.5);
+  }
+  
+  .dark .shadow-modern-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+                0 4px 6px -4px rgba(0, 0, 0, 0.5);
   }
 }

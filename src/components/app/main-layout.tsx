@@ -14,9 +14,12 @@ import { MainPanel } from '@/components/app/main-panel';
 import { Logo } from '@/components/icons';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sparkles } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
+import { useTheme } from './theme-provider';
 
 export function MainLayout() {
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <Sidebar className="flex flex-col border-r">
@@ -45,6 +48,11 @@ export function MainLayout() {
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               <span>AI Powered</span>
             </div>
+            <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
+              <div className={`w-2 h-2 rounded-full animate-pulse ${theme === 'dark' ? 'bg-accent' : 'bg-primary'}`} />
+              <span className="capitalize">{theme === 'dark' ? 'Dark' : 'Light'} Mode</span>
+            </div>
+            <ThemeToggle />
           </div>
         </header>
         <MainPanel />
