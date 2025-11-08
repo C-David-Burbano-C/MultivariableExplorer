@@ -3,7 +3,7 @@ import { Logo } from '../icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { SidebarGroup, SidebarGroupContent } from '../ui/sidebar';
 
-export function SidebarContent() {
+export function AppSidebarContent() {
   return (
     <SidebarGroup>
         <div className="flex items-center gap-3 p-2">

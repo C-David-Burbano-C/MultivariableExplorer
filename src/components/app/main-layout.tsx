@@ -9,7 +9,7 @@ import {
   SidebarContent as SidebarContentArea,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { SidebarContent } from '@/components/app/sidebar-content';
+import { AppSidebarContent } from '@/components/app/sidebar-content';
 import { MainPanel } from '@/components/app/main-panel';
 import { Logo } from '@/components/icons';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,18 +23,14 @@ export function MainLayout() {
       <Sidebar className="flex flex-col">
         <SidebarHeader />
         <SidebarContentArea>
-          <SidebarContent />
+          <AppSidebarContent />
         </SidebarContentArea>
         <SidebarFooter />
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
           <div className="flex items-center gap-2">
-            <SidebarTrigger asChild>
-              <Button size="icon" variant="outline" className="md:hidden">
-                <PanelLeft />
-              </Button>
-            </SidebarTrigger>
+            <SidebarTrigger className="md:hidden" />
             <Logo className="h-6 w-6 text-primary" />
             <h1 className="font-headline text-xl font-semibold">
               Multivariable Explorer
