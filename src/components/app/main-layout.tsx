@@ -6,7 +6,7 @@ import {
   SidebarHeader,
   SidebarTrigger,
   SidebarInset,
-  SidebarContent,
+  SidebarContent as SidebarContentArea,
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { SidebarContent } from '@/components/app/sidebar-content';
@@ -22,7 +22,9 @@ export function MainLayout() {
     <SidebarProvider defaultOpen={!isMobile}>
       <Sidebar className="flex flex-col">
         <SidebarHeader />
-        <SidebarContent />
+        <SidebarContentArea>
+          <SidebarContent />
+        </SidebarContentArea>
         <SidebarFooter />
       </Sidebar>
       <SidebarInset>
