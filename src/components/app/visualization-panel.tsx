@@ -92,11 +92,11 @@ export function VisualizationPanel() {
              if (!isValidExpression(parsedFunc.expresionNormalizada)) {
                 throw new Error("La expresión contiene código no permitido.");
             }
-            const isFunctionOfY = !parsedFunc.expresionNormalizada.includes('x');
-            const plotFunc = new Function(isFunctionOfY ? 'y' : 'x', `return ${parsedFunc.expresionNormalizada}`);
+            const isFunctionOfY = parsedFunc.expresionOriginal.includes('y') && !parsedFunc.expresionOriginal.includes('x');
+            const plotFunc = new Function('x', 'y', `return ${parsedFunc.expresionNormalizada}`);
             const points = [];
             for (let i = -10; i <= 10; i += 0.1) {
-                const result = plotFunc(i);
+                const result = isFunctionOfY ? plotFunc(0, i) : plotFunc(i, 0);
                 if (isFinite(result)) {
                     if (isFunctionOfY) {
                         points.push(new THREE.Vector3(result, i, 0));
