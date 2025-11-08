@@ -92,12 +92,17 @@ export function VisualizationPanel() {
              if (!isValidExpression(parsedFunc.expresionNormalizada)) {
                 throw new Error("La expresión contiene código no permitido.");
             }
-            const plotFunc = new Function('x', `return ${parsedFunc.expresionNormalizada}`);
+            const isFunctionOfY = !parsedFunc.expresionNormalizada.includes('x');
+            const plotFunc = new Function(isFunctionOfY ? 'y' : 'x', `return ${parsedFunc.expresionNormalizada}`);
             const points = [];
             for (let i = -10; i <= 10; i += 0.1) {
-                const y = plotFunc(i);
-                if (isFinite(y)) {
-                    points.push(new THREE.Vector3(i, y, 0));
+                const result = plotFunc(i);
+                if (isFinite(result)) {
+                    if (isFunctionOfY) {
+                        points.push(new THREE.Vector3(result, i, 0));
+                    } else {
+                        points.push(new THREE.Vector3(i, result, 0));
+                    }
                 }
             }
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -178,5 +183,3 @@ export function VisualizationPanel() {
     </Card>
   );
 }
-
-    
