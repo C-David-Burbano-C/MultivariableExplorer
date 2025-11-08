@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { ParsedFunction } from '@/lib/types';
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useAppContext } from './app-context';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { TriangleAlert } from 'lucide-react';
@@ -37,6 +38,15 @@ export function VisualizationPanel() {
     camera.position.z = 5;
     camera.position.y = 5;
     camera.lookAt(0, 0, 0);
+
+    // --- Controls ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 1;
+    controls.maxDistance = 50;
+    controls.maxPolarAngle = Math.PI; // Allow full rotation
 
     // --- Lighting ---
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -76,7 +86,7 @@ export function VisualizationPanel() {
             const mesh = new THREE.Mesh(geometry, material);
             scene.add(mesh);
             camera.position.set(6, 6, 6);
-            camera.lookAt(0, 0, 0);
+            controls.update();
 
         } else if (parsedFunc.tipo === '2D') {
              if (!isValidExpression(parsedFunc.expresionNormalizada)) {
@@ -95,44 +105,17 @@ export function VisualizationPanel() {
             const line = new THREE.Line(geometry, material);
             scene.add(line);
             camera.position.set(0, 0, 15);
-            camera.lookAt(0, 0, 0);
+            controls.update();
         }
     } catch (e: any) {
         console.error("Plotting error:", e);
         setError(`No se pudo graficar la función. Error: ${e.message}`);
     }
 
-
-    // --- Controls ---
-    let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
-    const onMouseDown = (e: MouseEvent) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; };
-    const onMouseUp = () => { isDragging = false; };
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      const deltaMove = { x: e.clientX - previousMousePosition.x, y: e.clientY - previousMousePosition.y };
-      const rotationSpeed = 0.005;
-      
-      const pivot = new THREE.Object3D();
-      pivot.add(camera);
-      scene.add(pivot);
-
-      pivot.rotation.y += deltaMove.x * rotationSpeed;
-      pivot.rotation.x += deltaMove.y * rotationSpeed;
-
-      previousMousePosition = { x: e.clientX, y: e.clientY };
-    };
-    const onWheel = (e: WheelEvent) => {
-        camera.position.z += e.deltaY * 0.01;
-    };
-    renderer.domElement.addEventListener('mousedown', onMouseDown);
-    renderer.domElement.addEventListener('mouseup', onMouseUp);
-    renderer.domElement.addEventListener('mousemove', onMouseMove);
-    renderer.domElement.addEventListener('wheel', onWheel);
-
     // --- Animation Loop ---
     const animate = function () {
       requestAnimationFrame(animate);
+      controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
       renderer.render(scene, camera);
     };
     animate();
@@ -148,14 +131,21 @@ export function VisualizationPanel() {
     // --- Cleanup ---
     return () => {
       window.removeEventListener('resize', handleResize);
+      controls.dispose();
       if (mountRef.current) {
         mountRef.current.innerHTML = '';
       }
       // Dispose Three.js objects
       scene.traverse(object => {
           if (object instanceof THREE.Mesh) {
-              object.geometry.dispose();
-              object.material.dispose();
+              if (object.geometry) object.geometry.dispose();
+              if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(material => material.dispose());
+                } else {
+                    object.material.dispose();
+                }
+              }
           }
       });
       renderer.dispose();
@@ -183,8 +173,10 @@ export function VisualizationPanel() {
             </Alert>
         )}
         <div ref={mountRef} className="h-[60vh] w-full rounded-lg bg-slate-200 dark:bg-slate-800" />
-        <p className="text-xs text-muted-foreground mt-2 text-center">Use el mouse para rotar (clic y arrastrar) y hacer zoom (rueda del mouse).</p>
+        <p className="text-xs text-muted-foreground mt-2 text-center">Usa el mouse para rotar (clic izquierdo y arrastrar), mover (clic derecho y arrastrar) y hacer zoom (rueda del mouse).</p>
       </CardContent>
     </Card>
   );
 }
+
+    
