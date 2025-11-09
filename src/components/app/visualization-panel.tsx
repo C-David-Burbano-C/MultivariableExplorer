@@ -761,7 +761,7 @@ export default function VisualizationPanel() {
         const plotFunc = new Function('x', 'y', `return ${parsedFunc.expresionNormalizada}`);
 
         // --- Geometría grande con más detalle  ---
-        const geometry = new THREE.PlaneGeometry(20, 20, 30, 30);
+        const geometry = new THREE.PlaneGeometry(20, 20, 80, 80);
         geometry.rotateX(-Math.PI / 2);
 
         // --- Deformar superficie ---
