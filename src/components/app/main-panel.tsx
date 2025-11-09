@@ -1,15 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import VisualizationPanel from './visualization-panel';
 import { CalculusToolsPanel } from './calculus-tools-panel';
 import { CalculatorPanel } from './calculator-panel';
+import { WelcomePanel } from './welcome-panel';
 import { useAppContext } from './app-context';
 import { AlertCircle, Calculator, FunctionSquare, PilcrowSquare } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export function MainPanel() {
   const { funcResult, isParsing } = useAppContext();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Show welcome dialog when no function is loaded
+  useEffect(() => {
+    if (!funcResult || 'error' in funcResult) {
+      setShowWelcome(true);
+    } else {
+      setShowWelcome(false);
+    }
+  }, [funcResult]);
 
   if (isParsing) {
     return (
@@ -40,7 +52,19 @@ export function MainPanel() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="tools">
-          <CalculusToolsPanel />
+          {funcResult && !('error' in funcResult) ? (
+            <CalculusToolsPanel />
+          ) : (
+            <div className="flex h-[calc(100vh-200px)] w-full items-center justify-center p-8">
+              <Alert className="max-w-lg text-center">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="font-headline">Herramientas no disponibles</AlertTitle>
+                  <AlertDescription>
+                      Ingrese una función en el panel lateral para acceder a las herramientas de cálculo.
+                  </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </TabsContent>
         <TabsContent value="visualization">
           {funcResult && !('error' in funcResult) ? (
@@ -61,6 +85,8 @@ export function MainPanel() {
           <CalculatorPanel />
         </TabsContent>
       </Tabs>
+
+      <WelcomePanel open={showWelcome} onOpenChange={setShowWelcome} />
     </main>
   );
 }

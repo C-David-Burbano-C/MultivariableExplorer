@@ -6,15 +6,21 @@ import { MultipleIntegralTool } from './multiple-integral-tool';
 import { OptimizationTool } from './optimization-tool';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Activity, Sigma, Target, TrendingUp } from 'lucide-react';
+import { Logo } from '../icons';
 
 export function CalculusToolsPanel() {
   return (
     <Card className="shadow-modern-lg">
       <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5 border-b">
-        <CardTitle className="text-xl font-bold">Herramientas de Cálculo</CardTitle>
-        <CardDescription>
-          Explore propiedades matemáticas avanzadas de su función
-        </CardDescription>
+        <div className="flex items-center gap-3 mb-2">
+          <Logo width={32} height={32} />
+          <div>
+            <CardTitle className="text-xl font-bold">Herramientas de Cálculo</CardTitle>
+            <CardDescription>
+              Explore propiedades matemáticas avanzadas de su función
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-6">
         <Tabs defaultValue="domain" className="w-full">

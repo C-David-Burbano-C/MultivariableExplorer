@@ -14,6 +14,9 @@ const fontHeadline = Space_Grotesk({
 export const metadata: Metadata = {
   title: 'Multivariable Explorer',
   description: 'Aplicativo interactivo para cálculo multivariable.',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
