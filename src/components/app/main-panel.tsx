@@ -37,18 +37,18 @@ export function MainPanel() {
   return (
     <main className="flex flex-1 flex-col p-4 sm:p-6">
       <Tabs defaultValue="tools">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="tools">
-            <PilcrowSquare className="mr-2 h-4 w-4" />
-            Herramientas de Cálculo
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+          <TabsTrigger value="tools" className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
+            <PilcrowSquare className="h-4 w-4 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Herramientas</span>
           </TabsTrigger>
-          <TabsTrigger value="visualization" disabled={!funcResult || 'error' in funcResult}>
-            <FunctionSquare className="mr-2 h-4 w-4" />
-            Visualización
+          <TabsTrigger value="visualization" disabled={!funcResult || 'error' in funcResult} className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
+            <FunctionSquare className="h-4 w-4 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Visualización</span>
           </TabsTrigger>
-          <TabsTrigger value="calculator">
-            <Calculator className="mr-2 h-4 w-4" />
-            Calculadora
+          <TabsTrigger value="calculator" className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
+            <Calculator className="h-4 w-4 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Calculadora</span>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="tools">
