@@ -11,7 +11,7 @@ import { AlertCircle, Calculator, FunctionSquare, PilcrowSquare } from 'lucide-r
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export function MainPanel() {
-  const { funcResult, isParsing } = useAppContext();
+  const { funcResult, isParsing, activeMainTab, setActiveMainTab } = useAppContext();
   const [showWelcome, setShowWelcome] = useState(false);
 
   // Show welcome dialog when no function is loaded
@@ -35,23 +35,36 @@ export function MainPanel() {
   }
 
   return (
-    <main className="flex flex-1 flex-col p-4 sm:p-6">
-      <Tabs defaultValue="tools">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
-          <TabsTrigger value="tools" className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
-            <PilcrowSquare className="h-4 w-4 sm:mr-2" />
-            <span className="text-xs sm:text-sm">Herramientas</span>
+    <main className="flex flex-1 flex-col p-4 sm:p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Tabs value={activeMainTab} onValueChange={setActiveMainTab}>
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto transition-all duration-300">
+          <TabsTrigger 
+            value="tools" 
+            className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2 transition-all duration-200 hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+          >
+            <PilcrowSquare className="h-4 w-4 sm:mr-2 transition-transform duration-200 group-hover:scale-110" />
+            <span className="text-xs sm:text-sm transition-colors duration-200">Herramientas</span>
           </TabsTrigger>
-          <TabsTrigger value="visualization" disabled={!funcResult || 'error' in funcResult} className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
-            <FunctionSquare className="h-4 w-4 sm:mr-2" />
-            <span className="text-xs sm:text-sm">Visualización</span>
+          <TabsTrigger 
+            value="visualization" 
+            disabled={!funcResult || 'error' in funcResult}
+            className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2 transition-all duration-200 hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FunctionSquare className="h-4 w-4 sm:mr-2 transition-transform duration-200 group-hover:scale-110" />
+            <span className="text-xs sm:text-sm transition-colors duration-200">Visualización</span>
           </TabsTrigger>
-          <TabsTrigger value="calculator" className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2">
-            <Calculator className="h-4 w-4 sm:mr-2" />
-            <span className="text-xs sm:text-sm">Calculadora</span>
+          <TabsTrigger 
+            value="calculator"
+            className="flex-col sm:flex-row gap-1 sm:gap-2 py-3 sm:py-2 transition-all duration-200 hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+          >
+            <Calculator className="h-4 w-4 sm:mr-2 transition-transform duration-200 group-hover:scale-110" />
+            <span className="text-xs sm:text-sm transition-colors duration-200">Calculadora</span>
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="tools">
+        <TabsContent 
+          value="tools" 
+          className="animate-in fade-in duration-300 data-[state=inactive]:animate-out data-[state=inactive]:fade-out data-[state=inactive]:duration-200"
+        >
           {funcResult && !('error' in funcResult) ? (
             <CalculusToolsPanel />
           ) : (
@@ -66,7 +79,10 @@ export function MainPanel() {
             </div>
           )}
         </TabsContent>
-        <TabsContent value="visualization">
+        <TabsContent 
+          value="visualization"
+          className="animate-in fade-in duration-300 data-[state=inactive]:animate-out data-[state=inactive]:fade-out data-[state=inactive]:duration-200"
+        >
           {funcResult && !('error' in funcResult) ? (
             <VisualizationPanel />
           ) : (
@@ -81,7 +97,10 @@ export function MainPanel() {
             </div>
           )}
         </TabsContent>
-        <TabsContent value="calculator">
+        <TabsContent 
+          value="calculator"
+          className="animate-in fade-in duration-300 data-[state=inactive]:animate-out data-[state=inactive]:fade-out data-[state=inactive]:duration-200"
+        >
           <CalculatorPanel />
         </TabsContent>
       </Tabs>

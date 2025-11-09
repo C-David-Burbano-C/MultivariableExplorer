@@ -20,6 +20,10 @@ type AppContextType = {
   setMultipleIntegralResult: Dispatch<SetStateAction<MultipleIntegralResult | null>>;
   isParsing: boolean;
   setIsParsing: Dispatch<SetStateAction<boolean>>;
+  activeTab: string;
+  setActiveTab: Dispatch<SetStateAction<string>>;
+  activeMainTab: string;
+  setActiveMainTab: Dispatch<SetStateAction<string>>;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -30,6 +34,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [partialDerivativeResult, setPartialDerivativeResult] = useState<PartialDerivativeResult | null>(null);
   const [multipleIntegralResult, setMultipleIntegralResult] = useState<MultipleIntegralResult | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [activeTab, setActiveTab] = useState('3d');
+  const [activeMainTab, setActiveMainTab] = useState('tools');
 
   const value = {
     funcResult,
@@ -42,6 +48,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setMultipleIntegralResult,
     isParsing,
     setIsParsing,
+    activeTab,
+    setActiveTab,
+    activeMainTab,
+    setActiveMainTab,
   };
 
   return (

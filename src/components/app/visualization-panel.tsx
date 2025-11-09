@@ -24,6 +24,99 @@ function isValidExpression(expr: string) {
 }
 
 // =========================================
+// FUNCION DE AUTO-FIT DE CAMARA
+// Calcula automáticamente la distancia óptima de la cámara para que la geometría
+// quepa completamente en el campo de visión, con transiciones suaves
+// =========================================
+function autoFitCamera(camera: THREE.PerspectiveCamera, controls: any, scene: THREE.Scene, duration: number = 1000) {
+  // Calcular bounding box de todos los objetos visibles
+  const box = new THREE.Box3();
+
+  // Primero, calcular el bounding box de la geometría principal (superficie)
+  scene.traverse((object) => {
+    if (object instanceof THREE.Mesh && object.geometry) {
+      // Solo considerar la malla principal (superficie), no las flechas del gradiente
+      if (object.geometry.type === 'PlaneGeometry' || object.geometry.type === 'BufferGeometry') {
+        object.geometry.computeBoundingBox();
+        if (object.geometry.boundingBox) {
+          box.expandByPoint(object.geometry.boundingBox.min);
+          box.expandByPoint(object.geometry.boundingBox.max);
+        }
+      }
+    }
+  });
+
+  // Si no hay geometría principal, usar valores por defecto
+  if (box.isEmpty()) {
+    box.setFromPoints([
+      new THREE.Vector3(-10, -10, -10),
+      new THREE.Vector3(10, 10, 10)
+    ]);
+  }
+
+  // Calcular el centro del bounding box
+  const center = box.getCenter(new THREE.Vector3());
+
+  // Calcular el tamaño del bounding box
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+
+  // Calcular distancia óptima de la cámara
+  const fov = camera.fov * (Math.PI / 180); // Convertir a radianes
+  const aspect = camera.aspect;
+
+  // Usar la dimensión máxima para calcular la distancia
+  // La fórmula considera el ángulo de visión y el aspecto
+  const distance = Math.abs(maxDim / (2 * Math.tan(fov / 2)));
+
+  // Añadir un margen de seguridad (20% más)
+  const optimalDistance = distance * 1.2;
+
+  // Posición objetivo de la cámara (ángulo isométrico para mejor visualización)
+  const elevation = Math.PI / 6; // 30 grados arriba
+  const azimuth = Math.PI / 4;   // 45 grados lateral
+
+  const targetPosition = new THREE.Vector3(
+    center.x + optimalDistance * Math.cos(azimuth) * Math.cos(elevation),
+    center.y + optimalDistance * Math.sin(elevation),
+    center.z + optimalDistance * Math.sin(azimuth) * Math.cos(elevation)
+  );
+
+  // Posición actual de la cámara
+  const currentPosition = camera.position.clone();
+
+  // Animar suavemente hacia la nueva posición
+  const startTime = Date.now();
+  const startPosition = currentPosition.clone();
+  const endPosition = targetPosition.clone();
+
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Función de easing suave (ease-out cubic)
+    const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+    // Interpolar posición
+    const newPosition = new THREE.Vector3().lerpVectors(startPosition, endPosition, easedProgress);
+    camera.position.copy(newPosition);
+
+    // Apuntar la cámara hacia el centro
+    camera.lookAt(center);
+
+    // Actualizar controles
+    controls.target.copy(center);
+    controls.update();
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+
+  animate();
+}
+
+// =========================================
 // FUNCION PRINCIPAL DE RENDERIZADO 2D
 // Crea la escena completa para visualizacion 2D con curvas de nivel, gradientes y mapa de calor
 // =========================================
@@ -588,7 +681,8 @@ function render2DVisualization(
 export default function VisualizationPanel() {
   const mountRef = useRef<HTMLDivElement>(null);
   const mountRef2D = useRef<HTMLDivElement>(null);
-  const { funcResult } = useAppContext();
+  const canvas3DRef = useRef<HTMLDivElement>(null);
+  const { funcResult, activeTab, setActiveTab } = useAppContext();
   const [error, setError] = useState<string | null>(null);
   const [showContours, setShowContours] = useState(false);
   const [numContours, setNumContours] = useState([8]);
@@ -598,10 +692,10 @@ export default function VisualizationPanel() {
   const [interactiveContourHeight, setInteractiveContourHeight] = useState([0]);
   const [view2DMode, setView2DMode] = useState<'top' | 'iso' | 'side' | 'front'>('top');
   const [customRotation, setCustomRotation] = useState({ x: -Math.PI / 2, y: 0, z: 0 });
-  const [activeTab, setActiveTab] = useState('3d');
   const [showLayer, setShowLayer] = useState(true);
   const [showGradientField2D, setShowGradientField2D] = useState(false);
   const [surfaceOpacity, setSurfaceOpacity] = useState([0.6]);
+  const [autoFitCameraEnabled, setAutoFitCameraEnabled] = useState(true);
 
   const parsedFunc = funcResult as ParsedFunction;
 
@@ -667,7 +761,7 @@ export default function VisualizationPanel() {
         const plotFunc = new Function('x', 'y', `return ${parsedFunc.expresionNormalizada}`);
 
         // --- Geometría grande con más detalle  ---
-        const geometry = new THREE.PlaneGeometry(20, 20, 100, 100);
+        const geometry = new THREE.PlaneGeometry(20, 20, 30, 30);
         geometry.rotateX(-Math.PI / 2);
 
         // --- Deformar superficie ---
@@ -995,9 +1089,15 @@ if (showContours) {
           animateNeonGlow();
         }
 
-        // --- Cámara ---
-        camera.position.set(10, 7, 10);
-        controls.update();
+        // --- Auto-fit de cámara ---
+        if (autoFitCameraEnabled) {
+          // Pequeño delay para asegurar que toda la geometría esté renderizada
+          setTimeout(() => autoFitCamera(camera, controls, scene), 100);
+        } else {
+          // --- Cámara ---
+          camera.position.set(10, 7, 10);
+          controls.update();
+        }
       } else if (parsedFunc.tipo === '2D') {
         if (!isValidExpression(parsedFunc.expresionNormalizada)) {
           throw new Error('La expresión contiene código no permitido.');
@@ -1064,7 +1164,7 @@ if (showContours) {
       });
       renderer.dispose();
     };
-  }, [funcResult, showContours, numContours, showGradientField, gradientDensity, showLayer, surfaceOpacity]);
+  }, [funcResult, showContours, numContours, showGradientField, gradientDensity, showLayer, surfaceOpacity, autoFitCameraEnabled]);
 
   // =========================================
   // EFECTO DE VISUALIZACION 2D
@@ -1089,6 +1189,24 @@ if (showContours) {
     );
     return cleanup;
   }, [funcResult, showInteractiveContours, interactiveContourHeight, showLayer, view2DMode, customRotation, activeTab, showGradientField2D]);
+
+  // =========================================
+  // EFECTO DE AUTOSCROLL A LA FIGURA 3D
+  // Hace scroll automático hasta el canvas 3D cuando se activa la pestaña 3D
+  // Mejora la experiencia del usuario al enfocar automáticamente la visualización
+  // =========================================
+  useEffect(() => {
+    if (activeTab === '3d' && canvas3DRef.current) {
+      // Pequeño delay para asegurar que el elemento esté completamente renderizado
+      setTimeout(() => {
+        canvas3DRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+  }, [activeTab]);
 
   return (
     <Card className="shadow-modern-lg border-2">
@@ -1127,19 +1245,28 @@ if (showContours) {
         {/* Tabs para 3D y 2D */}
         {parsedFunc?.tipo === '3D' && (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="3d" className="flex items-center gap-2">
-                <Layers className="h-4 w-4" />
+            <TabsList className="grid w-full grid-cols-2 mb-6 transition-all duration-300">
+              <TabsTrigger 
+                value="3d" 
+                className="flex items-center gap-2 transition-all duration-200 hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+              >
+                <Layers className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 Vista 3D
               </TabsTrigger>
-              <TabsTrigger value="2d" className="flex items-center gap-2">
-                <Square className="h-4 w-4" />
+              <TabsTrigger 
+                value="2d"
+                className="flex items-center gap-2 transition-all duration-200 hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+              >
+                <Square className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 Vista 2D
               </TabsTrigger>
             </TabsList>
 
             {/* Tab 3D */}
-            <TabsContent value="3d" className="space-y-6">
+            <TabsContent 
+              value="3d" 
+              className="space-y-6 animate-in fade-in duration-400 data-[state=inactive]:animate-out data-[state=inactive]:fade-out data-[state=inactive]:duration-300"
+            >
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Layers className="h-5 w-5" />
@@ -1259,10 +1386,34 @@ if (showContours) {
                     </div>
                   </div>
                 </div>
+
+                {/* Controles de auto-fit de cámara */}
+                <div className="mb-4 p-4 bg-muted/30 rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      <Label htmlFor="auto-fit-camera" className="text-sm font-medium">
+                        Auto-Ajuste de Cámara
+                      </Label>
+                    </div>
+                    <Switch
+                      id="auto-fit-camera"
+                      checked={autoFitCameraEnabled}
+                      onCheckedChange={setAutoFitCameraEnabled}
+                    />
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    {autoFitCameraEnabled 
+                      ? "La cámara se ajusta automáticamente para mostrar la figura completa"
+                      : "Posición manual de la cámara (puedes usar controles para navegar)"
+                    }
+                  </div>
+                </div>
               </div>
 
               {/* Canvas 3D */}
-              <div>
+              <div ref={canvas3DRef}>
                 <h4 className="text-md font-medium mb-2">Vista 3D Interactiva</h4>
                 <div
                   ref={mountRef}
@@ -1284,7 +1435,10 @@ if (showContours) {
             </TabsContent>
 
             {/* Tab 2D */}
-            <TabsContent value="2d" className="space-y-6">
+            <TabsContent 
+              value="2d" 
+              className="space-y-6 animate-in fade-in duration-400 data-[state=inactive]:animate-out data-[state=inactive]:fade-out data-[state=inactive]:duration-300"
+            >
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Square className="h-5 w-5" />

@@ -34,7 +34,7 @@ const EXAMPLE_FUNCTIONS = [
 ];
 
 export function FunctionInputForm() {
-  const { setFuncResult, setIsParsing, isParsing } = useAppContext();
+  const { setFuncResult, setIsParsing, isParsing, setActiveTab, setActiveMainTab } = useAppContext();
   const { toast } = useToast();
   const [showExamples, setShowExamples] = useState(false);
 
@@ -59,6 +59,13 @@ export function FunctionInputForm() {
         setFuncResult(result);
       } else {
         setFuncResult(result);
+        // Esperar un momento para que el módulo de visualización procese los datos
+        setTimeout(() => {
+          // Cambiar a la pestaña principal de visualización
+          setActiveMainTab('visualization');
+          // Cambiar automáticamente a la pestaña 3D después de analizar y graficar
+          setActiveTab('3d');
+        }, 200); // Pequeño delay para asegurar que la visualización esté lista
         toast({
           title: '¡Función analizada!',
           description: `Tipo: ${result.tipo} - ${result.descripcion}`,
