@@ -22,13 +22,6 @@ const suggestions: OptimizationSuggestion[] = [
     icon: <Target className="h-5 w-5" />
   },
   {
-    title: 'Curvas de Nivel y Contornos',
-    description: 'Visualización 2D de funciones 3D con líneas de contorno',
-    difficulty: 'Fácil',
-    impact: 'Alto',
-    icon: <Layers className="h-5 w-5" />
-  },
-  {
     title: 'Optimización con Restricciones',
     description: 'Método de multiplicadores de Lagrange para problemas de optimización',
     difficulty: 'Avanzado',
@@ -94,8 +87,8 @@ export function OptimizationSuggestions() {
         <div className="mt-6 p-4 bg-primary/5 rounded-lg border">
           <h4 className="font-semibold text-sm mb-2">💡 Recomendación Prioritaria</h4>
           <p className="text-xs text-muted-foreground">
-            Comienza con <strong>"Curvas de Nivel y Contornos"</strong> - es de alto impacto,
-            dificultad baja y complementa perfectamente la visualización 3D existente.
+            Comienza con <strong>"Análisis de Puntos Críticos"</strong> - es de alto impacto,
+            complementa perfectamente las herramientas de cálculo existentes.
           </p>
         </div>
       </CardContent>

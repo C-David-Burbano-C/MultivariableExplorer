@@ -1,7 +1,7 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { VisualizationPanel } from './visualization-panel';
+import VisualizationPanel from './visualization-panel';
 import { CalculusToolsPanel } from './calculus-tools-panel';
 import { CalculatorPanel } from './calculator-panel';
 import { useAppContext } from './app-context';
